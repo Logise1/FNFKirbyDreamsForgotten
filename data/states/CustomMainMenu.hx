@@ -38,14 +38,23 @@ var worldLocked = [false, true, true, true, true];
 var worldNames = ["DREAM LAND", "???", "???", "???", "???"];
 var worldSongs = ["tutorial", "", "", "", ""];
 var worldSprites = [];
-var worldNums = [];
 var worldHomeX = [];
 var worldHomeY = [];
+var worldBaseW = [];
+var worldBaseH = [];
 var worldAppear = [];
 var worldHovered = 0;
 var worldShakeT = 0.0;
 var worldShakeI = -1;
-var worldSize = 130.0;
+
+var lsBg;
+var lsBgHomeX = 0.0;
+var lsBgHomeY = 0.0;
+var lsScale = 1.0;
+var slotCX = [676.0, 922.0, 1178.0, 772.0, 1070.0];
+var slotCY = [288.0, 294.0, 296.0, 528.0, 526.0];
+var slotW = [144.0, 132.0, 132.0, 168.0, 172.0];
+var slotH = [120.0, 116.0, 120.0, 144.0, 156.0];
 
 function create() {
 	skipTransIn = true;
@@ -96,7 +105,7 @@ function create() {
 	}
 
 	overlayDim = new FlxSprite();
-	overlayDim.makeGraphic(FlxG.width, FlxG.height, 0xCC001A44);
+	overlayDim.makeGraphic(FlxG.width, FlxG.height, 0xFF001A44);
 	overlayDim.scrollFactor.set();
 	overlayDim.visible = false;
 	overlayDim.alpha = 0;
@@ -133,47 +142,46 @@ function create() {
 }
 
 function createWorlds() {
-	worldSize = 128 * menuScale;
-	var gap = 28 * menuScale;
-	var totalW = worldCount * worldSize + (worldCount - 1) * gap;
-	var startX = (FlxG.width - totalW) / 2;
-	var cy = FlxG.height * 0.48;
+	lsScale = Math.max(FlxG.width / 1902, FlxG.height / 861) * 1.04;
+	lsBgHomeX = (FlxG.width - 1902 * lsScale) / 2;
+	lsBgHomeY = (FlxG.height - 861 * lsScale) / 2;
+
+	lsBg = new FlxSprite();
+	lsBg.loadGraphic(Paths.image("menus/mainmenu/levelselectbg"));
+	lsBg.antialiasing = true;
+	lsBg.scrollFactor.set();
+	lsBg.scale.set(lsScale, lsScale);
+	lsBg.updateHitbox();
+	lsBg.setPosition(lsBgHomeX, lsBgHomeY);
+	lsBg.visible = false;
+	add(lsBg);
 
 	var i = 0;
 	while (i < worldCount) {
 		var spr = new FlxSprite();
-		if (worldLocked[i]) {
+		if (worldLocked[i])
 			spr.loadGraphic(Paths.image("menus/mainmenu/locked"));
-			spr.antialiasing = true;
-		} else {
-			spr.makeGraphic(128, 128, 0xFFFFE27A);
-		}
+		else
+			spr.loadGraphic(Paths.image("menus/mainmenu/1st"));
+		spr.antialiasing = true;
 		spr.scrollFactor.set();
-		spr.setGraphicSize(Math.floor(worldSize));
+		var sw = slotW[i] * lsScale;
+		var sh = slotH[i] * lsScale;
+		spr.setGraphicSize(Math.floor(sw), Math.floor(sh));
 		spr.updateHitbox();
 		spr.visible = false;
 		spr.alpha = 0;
-		spr.x = startX + i * (worldSize + gap);
+		var cx = lsBgHomeX + slotCX[i] * lsScale;
+		var cy = lsBgHomeY + slotCY[i] * lsScale;
+		spr.x = cx - spr.width / 2;
 		spr.y = cy - spr.height / 2;
 		worldHomeX.push(spr.x);
 		worldHomeY.push(spr.y);
+		worldBaseW.push(spr.width);
+		worldBaseH.push(spr.height);
 		worldSprites.push(spr);
 		worldAppear.push(-1.0);
 		add(spr);
-
-		var num = null;
-		try {
-			var label = "0" + (i + 1);
-			if (worldLocked[i])
-				label = "?";
-			num = new FlxText(spr.x, spr.y + spr.height + 6, worldSize, label, 22);
-			num.setFormat(Paths.font("vcr.ttf"), 22, 0xFFFFFFFF, "center");
-			num.scrollFactor.set();
-			num.visible = false;
-			num.alpha = 0;
-			add(num);
-		} catch (e:Dynamic) {}
-		worldNums.push(num);
 		i++;
 	}
 }
@@ -358,6 +366,7 @@ function openOverlay(choice) {
 		overlaySub.alpha = 0;
 	}
 	if (overlayHint != null) {
+		overlayHint.color = 0xFFFFFFFF;
 		overlayHint.visible = true;
 		overlayHint.alpha = 0;
 	}
@@ -383,7 +392,7 @@ function closeOverlay() {
 function updateOverlay(elapsed) {
 	overlayTime += elapsed;
 	var fade = Math.min(1, overlayTime * 5);
-	overlayDim.alpha = fade;
+	overlayDim.alpha = fade * 0.72;
 	overlayIcon.alpha = fade;
 	if (overlayTitle != null) overlayTitle.alpha = fade;
 	if (overlaySub != null) overlaySub.alpha = fade;
@@ -420,28 +429,17 @@ function openLevelSelect() {
 		worldAppear[i] = -1.0;
 		worldSprites[i].visible = true;
 		worldSprites[i].alpha = 0;
-		if (worldNums[i] != null) {
-			worldNums[i].visible = true;
-			worldNums[i].alpha = 0;
-		}
 		i++;
 	}
 
-	overlayDim.visible = true;
-	overlayDim.alpha = 0;
-	if (overlayTitle != null) {
-		overlayTitle.text = "LEVEL SELECT";
-		overlayTitle.y = 72;
-		overlayTitle.visible = true;
-		overlayTitle.alpha = 0;
-	}
-	if (overlaySub != null) {
-		overlaySub.text = worldNames[0];
-		overlaySub.y = 124;
-		overlaySub.visible = true;
-		overlaySub.alpha = 0;
-	}
+	lsBg.visible = true;
+	overlayDim.visible = false;
+	if (overlayTitle != null)
+		overlayTitle.visible = false;
+	if (overlaySub != null)
+		overlaySub.visible = false;
 	if (overlayHint != null) {
+		overlayHint.color = 0xFFFFFFFF;
 		overlayHint.visible = true;
 		overlayHint.alpha = 0;
 	}
@@ -450,6 +448,7 @@ function openLevelSelect() {
 function closeLevelSelect() {
 	levelSelectOn = false;
 	hovered = -1;
+	lsBg.visible = false;
 	overlayDim.visible = false;
 	if (overlayTitle != null) overlayTitle.visible = false;
 	if (overlaySub != null) overlaySub.visible = false;
@@ -458,8 +457,6 @@ function closeLevelSelect() {
 	var i = 0;
 	while (i < worldCount) {
 		worldSprites[i].visible = false;
-		if (worldNums[i] != null)
-			worldNums[i].visible = false;
 		i++;
 	}
 
@@ -476,9 +473,8 @@ function updateLevelSelect(elapsed) {
 		worldShakeT -= elapsed;
 
 	var fade = Math.min(1, overlayTime * 5);
-	overlayDim.alpha = fade;
-	if (overlayTitle != null) overlayTitle.alpha = fade;
-	if (overlaySub != null) overlaySub.alpha = fade;
+	lsBg.x = lsBgHomeX + followX * 0.45;
+	lsBg.y = lsBgHomeY + followY * 0.45;
 	if (overlayHint != null) overlayHint.alpha = fade;
 
 	var nextHover = worldHovered;
@@ -497,33 +493,22 @@ function updateLevelSelect(elapsed) {
 
 		var spr = worldSprites[i];
 		spr.alpha = p;
-		var t1 = p - 1;
-		var pop = 1 + 2.70158 * t1 * t1 * t1 + 1.70158 * t1 * t1;
-		if (p >= 1) {
-			var mul = 1.0;
-			if (i == worldHovered)
-				mul = 1.12;
-			pop = FlxMath.lerp(spr.width / worldSize, mul, Math.min(1, elapsed * 12));
+		var mul = 1.0;
+		if (p < 1) {
+			var t1 = p - 1;
+			mul = 1 + 2.70158 * t1 * t1 * t1 + 1.70158 * t1 * t1;
+		} else if (i == worldHovered) {
+			mul = 1.08;
 		}
-		spr.setGraphicSize(Math.floor(worldSize * pop));
+		spr.setGraphicSize(Math.floor(worldBaseW[i] * mul), Math.floor(worldBaseH[i] * mul));
 		spr.updateHitbox();
 
 		var shake = 0.0;
 		if (i == worldShakeI && worldShakeT > 0)
 			shake = Math.sin(worldShakeT * 55) * 10 * (worldShakeT / 0.22);
 
-		spr.x = worldHomeX[i] + (worldSize - spr.width) / 2 + followX * 0.7 + shake;
-		spr.y = worldHomeY[i] + (worldSize - spr.height) / 2 + followY * 0.7;
-
-		if (worldNums[i] != null) {
-			worldNums[i].alpha = p;
-			worldNums[i].x = worldHomeX[i] + followX * 0.7;
-			worldNums[i].y = worldHomeY[i] + worldSize + 8 + followY * 0.7;
-			if (i == worldHovered && !worldLocked[i])
-				worldNums[i].color = 0xFFFFE27A;
-			else
-				worldNums[i].color = 0xFFFFFFFF;
-		}
+		spr.x = worldHomeX[i] + (worldBaseW[i] - spr.width) / 2 + followX * 0.7 + shake;
+		spr.y = worldHomeY[i] + (worldBaseH[i] - spr.height) / 2 + followY * 0.7;
 
 		if (p > 0.35 && FlxG.mouse.overlaps(spr))
 			nextHover = i;
@@ -533,8 +518,6 @@ function updateLevelSelect(elapsed) {
 	if (nextHover != worldHovered) {
 		worldHovered = nextHover;
 		CoolUtil.playMenuSFX(0, 0.7);
-		if (overlaySub != null)
-			overlaySub.text = worldNames[worldHovered];
 	}
 
 	if (fade < 1)
@@ -543,14 +526,10 @@ function updateLevelSelect(elapsed) {
 	if (FlxG.keys.justPressed.LEFT && worldHovered > 0) {
 		worldHovered -= 1;
 		CoolUtil.playMenuSFX(0, 0.7);
-		if (overlaySub != null)
-			overlaySub.text = worldNames[worldHovered];
 	}
 	if (FlxG.keys.justPressed.RIGHT && worldHovered < worldCount - 1) {
 		worldHovered += 1;
 		CoolUtil.playMenuSFX(0, 0.7);
-		if (overlaySub != null)
-			overlaySub.text = worldNames[worldHovered];
 	}
 
 	var confirm = FlxG.mouse.justPressed || FlxG.keys.justPressed.ENTER || FlxG.keys.justPressed.SPACE;
@@ -571,8 +550,6 @@ function updateLevelSelect(elapsed) {
 				return;
 			}
 			worldHovered = clickedWorld;
-			if (overlaySub != null)
-				overlaySub.text = worldNames[worldHovered];
 		}
 
 		if (worldLocked[worldHovered]) {

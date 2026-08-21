@@ -1,5 +1,4 @@
-![Logo](modlogo.png)
-# FNF: Kirby Dreams Forgotten 
+![Banner](modbanner.png)
 
 > [!WARNING]
 > **Active Development:** This mod is currently a work in progress. Bugs and visual glitches may occur. Please report any issues on the [Issues tab](https://github.com/Logise1/FNFKirbyDreamsForgotten/issues).

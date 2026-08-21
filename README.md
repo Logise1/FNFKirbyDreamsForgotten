@@ -1,3 +1,4 @@
+![Logo](modlogo.png)
 # FNF: Kirby Dreams Forgotten 
 
 > [!WARNING]

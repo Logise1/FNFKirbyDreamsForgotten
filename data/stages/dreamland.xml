@@ -5,8 +5,8 @@
 	<sprite name="mountains" x="-450" y="-520" sprite="mountains" scale="0.95" updateHitbox="true" scroll="1"/>
 	<sprite name="water" x="-450" y="-520" sprite="water" scale="0.95" updateHitbox="true" scroll="1"/>
 	<sprite name="hills" x="-450" y="-520" sprite="hills" scale="0.95" updateHitbox="true" scroll="1"/>
-	<sprite name="treeBack" x="-450" y="-520" sprite="treeback" scale="0.95" updateHitbox="true" scroll="1"/>
 	<sprite name="tree" x="-450" y="-520" sprite="tree" scale="0.95" updateHitbox="true" scroll="1"/>
+	<sprite name="treeBack" x="-450" y="-520" sprite="treeback" scale="0.95" updateHitbox="true" scroll="1"/>
 	<sprite name="waterSwirl" x="-450" y="-520" sprite="waterswirl" scale="0.95" updateHitbox="true" scroll="1"/>
 	<sprite name="stump" x="-450" y="-520" sprite="stump" scale="0.95" updateHitbox="true" scroll="1"/>
 	<girlfriend x="677" y="-337"/>

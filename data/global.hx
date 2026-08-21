@@ -10,3 +10,13 @@ function preStateSwitch() {
 		}
 	} catch (e:Dynamic) {}
 }
+
+function preStateCreate(state) {
+	try {
+		if (PlayState.SONG != null) {
+			var n = PlayState.SONG.meta != null ? PlayState.SONG.meta.name : null;
+			if (n != null && n.toLowerCase().indexOf("tutorial") != -1)
+				PlayState.SONG.stage = "dreamland";
+		}
+	} catch (e:Dynamic) {}
+}

@@ -55,13 +55,13 @@ function create() {
 	title.scrollFactor.set();
 	add(title);
 
-	var subtitle = new FunkinText(0, title.y + 52, FlxG.width, "Proximamente...", 22);
+	var subtitle = new FunkinText(0, title.y + 52, FlxG.width, "Coming soon...", 22);
 	subtitle.alignment = "center";
 	subtitle.color = 0xFFFFE27A;
 	subtitle.scrollFactor.set();
 	add(subtitle);
 
-	var hint = new FunkinText(0, FlxG.height - 36, FlxG.width, "CLICK o ESC  -  volver al menu", 16);
+	var hint = new FunkinText(0, FlxG.height - 36, FlxG.width, "CLICK or ESC  -  back to menu", 16);
 	hint.alignment = "center";
 	hint.scrollFactor.set();
 	add(hint);

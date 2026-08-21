@@ -51,10 +51,25 @@ var lsBg;
 var lsBgHomeX = 0.0;
 var lsBgHomeY = 0.0;
 var lsScale = 1.0;
-var slotCX = [676.0, 922.0, 1178.0, 772.0, 1070.0];
-var slotCY = [288.0, 294.0, 296.0, 528.0, 526.0];
-var slotW = [144.0, 132.0, 132.0, 168.0, 172.0];
-var slotH = [120.0, 116.0, 120.0, 144.0, 156.0];
+var lsImgW = 1292.0;
+var lsImgH = 584.0;
+var slotCX = [466.5, 645.3, 819.2, 529.5, 729.2];
+var slotCY = [194.8, 198.3, 195.8, 368.6, 364.6];
+var slotW = [119.9, 119.9, 121.9, 115.9, 117.9];
+var slotH = [113.9, 112.9, 113.9, 111.9, 115.9];
+
+var iris;
+var irisOn = false;
+var irisT = 0.0;
+var irisPhase = 0;
+var irisMax = 8.0;
+var irisX = 0.0;
+var irisY = 0.0;
+var irisKind = 0;
+var irisArg = 0;
+var irisLeave = false;
+var irisShader;
+var irisRadius = 0.0;
 
 function create() {
 	skipTransIn = true;
@@ -125,13 +140,13 @@ function create() {
 		overlayTitle.visible = false;
 		add(overlayTitle);
 
-		overlaySub = new FlxText(0, 0, FlxG.width, "Proximamente...", 22);
+		overlaySub = new FlxText(0, 0, FlxG.width, "Coming soon...", 22);
 		overlaySub.setFormat(Paths.font("vcr.ttf"), 22, 0xFFFFE27A, "center");
 		overlaySub.scrollFactor.set();
 		overlaySub.visible = false;
 		add(overlaySub);
 
-		overlayHint = new FlxText(0, FlxG.height - 36, FlxG.width, "CLICK o ESC  -  volver al menu", 16);
+		overlayHint = new FlxText(0, FlxG.height - 36, FlxG.width, "CLICK or ESC  -  back to menu", 16);
 		overlayHint.setFormat(Paths.font("vcr.ttf"), 16, 0xFFFFFFFF, "center");
 		overlayHint.scrollFactor.set();
 		overlayHint.visible = false;
@@ -142,16 +157,17 @@ function create() {
 }
 
 function createWorlds() {
-	lsScale = Math.max(FlxG.width / 1902, FlxG.height / 861) * 1.04;
-	lsBgHomeX = (FlxG.width - 1902 * lsScale) / 2;
-	lsBgHomeY = (FlxG.height - 861 * lsScale) / 2;
-
 	lsBg = new FlxSprite();
 	lsBg.loadGraphic(Paths.image("menus/mainmenu/levelselectbg"));
 	lsBg.antialiasing = true;
 	lsBg.scrollFactor.set();
-	lsBg.scale.set(lsScale, lsScale);
+	lsImgW = lsBg.frameWidth;
+	lsImgH = lsBg.frameHeight;
+	lsScale = Math.max(FlxG.width / lsImgW, FlxG.height / lsImgH) * 1.06;
+	lsBg.setGraphicSize(Math.floor(lsImgW * lsScale), Math.floor(lsImgH * lsScale));
 	lsBg.updateHitbox();
+	lsBgHomeX = (FlxG.width - lsBg.width) / 2.0;
+	lsBgHomeY = (FlxG.height - lsBg.height) / 2.0;
 	lsBg.setPosition(lsBgHomeX, lsBgHomeY);
 	lsBg.visible = false;
 	add(lsBg);
@@ -165,23 +181,58 @@ function createWorlds() {
 			spr.loadGraphic(Paths.image("menus/mainmenu/1st"));
 		spr.antialiasing = true;
 		spr.scrollFactor.set();
-		var sw = slotW[i] * lsScale;
-		var sh = slotH[i] * lsScale;
-		spr.setGraphicSize(Math.floor(sw), Math.floor(sh));
-		spr.updateHitbox();
 		spr.visible = false;
 		spr.alpha = 0;
-		var cx = lsBgHomeX + slotCX[i] * lsScale;
-		var cy = lsBgHomeY + slotCY[i] * lsScale;
-		spr.x = cx - spr.width / 2;
-		spr.y = cy - spr.height / 2;
-		worldHomeX.push(spr.x);
-		worldHomeY.push(spr.y);
-		worldBaseW.push(spr.width);
-		worldBaseH.push(spr.height);
 		worldSprites.push(spr);
 		worldAppear.push(-1.0);
+		worldHomeX.push(0.0);
+		worldHomeY.push(0.0);
+		worldBaseW.push(1.0);
+		worldBaseH.push(1.0);
 		add(spr);
+		i++;
+	}
+
+	layoutWorlds(0.0, 0.0);
+
+	iris = new FlxSprite(-50, -50);
+	iris.makeGraphic(20, 20, 0xFF000000, true);
+	iris.scrollFactor.set();
+	iris.setGraphicSize(FlxG.width + 100, FlxG.height + 100);
+	iris.updateHitbox();
+	iris.visible = false;
+	try {
+		irisShader = new CustomShader("irisHole");
+		irisShader.radius = 1.4;
+		irisShader.feather = 0.012;
+		irisShader.aspect = FlxG.width / FlxG.height;
+		iris.shader = irisShader;
+	} catch (e:Dynamic) {
+		irisShader = null;
+	}
+	add(iris);
+}
+
+function layoutWorlds(ox, oy) {
+	var bw = lsBg.width;
+	var bh = lsBg.height;
+	var bx = lsBgHomeX + ox;
+	var by = lsBgHomeY + oy;
+	var i = 0;
+	while (i < worldCount) {
+		var sw = slotW[i] * bw / lsImgW;
+		var sh = slotH[i] * bh / lsImgH;
+		var spr = worldSprites[i];
+		spr.setGraphicSize(Math.floor(sw), Math.floor(sh));
+		spr.updateHitbox();
+		worldBaseW[i] = spr.width;
+		worldBaseH[i] = spr.height;
+		var cx = bx + slotCX[i] * bw / lsImgW;
+		var cy = by + slotCY[i] * bh / lsImgH;
+		worldHomeX[i] = cx - spr.width / 2.0;
+		worldHomeY[i] = cy - spr.height / 2.0;
+		spr.x = worldHomeX[i];
+		spr.y = worldHomeY[i];
 		i++;
 	}
 }
@@ -191,6 +242,9 @@ function update(elapsed) {
 		FlxG.sound.music.volume += 0.5 * elapsed;
 
 	updateCameraFollow(elapsed);
+
+	if (irisOn)
+		updateIris(elapsed);
 
 	if (levelSelectOn) {
 		updateLevelSelect(elapsed);
@@ -202,20 +256,20 @@ function update(elapsed) {
 		return;
 	}
 
-	if (selectedSomethin) {
-		updateFlicker(elapsed);
-		return;
-	}
+	updateMenuMotion(elapsed);
 
-	introTime += elapsed;
-	updateHover();
+	if (selectedSomethin)
+		updateFlicker(elapsed);
+
+	if (irisOn || selectedSomethin)
+		return;
 
 	if (FlxG.mouse.justPressed && hovered >= 0)
 		clickItem();
 
 	if (controls.BACK) {
 		CoolUtil.playMenuSFX(2);
-		FlxG.switchState(new TitleState());
+		startIris(FlxG.width / 2, FlxG.height / 2, 4, 0);
 	}
 
 	if (controls.SWITCHMOD) {
@@ -223,6 +277,12 @@ function update(elapsed) {
 		persistentDraw = true;
 		openSubState(new ModSwitchMenu());
 	}
+}
+
+function updateMenuMotion(elapsed) {
+	introTime += elapsed;
+	if (!selectedSomethin && !irisOn)
+		updateHover();
 
 	var i = 0;
 	while (i < menuItems.length) {
@@ -238,7 +298,8 @@ function update(elapsed) {
 		if (appearT[i] >= 0)
 			p = Math.min(1, appearT[i] / 0.32);
 
-		item.alpha = Math.min(1, p * 1.7);
+		if (!(selectedSomethin && i == hovered))
+			item.alpha = Math.min(1, p * 1.7);
 
 		var target = menuScale;
 		if (p < 1) {
@@ -286,7 +347,7 @@ function updateHover() {
 }
 
 function clickItem() {
-	if (selectedSomethin || overlayOn || levelSelectOn || hovered < 0)
+	if (selectedSomethin || overlayOn || levelSelectOn || irisOn || hovered < 0)
 		return;
 	selectedSomethin = true;
 	leftState = false;
@@ -297,17 +358,10 @@ function clickItem() {
 function updateFlicker(elapsed) {
 	flickerTime += elapsed;
 	var item = menuItems[hovered];
-	if (flickerTime < 0.85) {
-		item.visible = (Math.floor(flickerTime * 16) % 2) == 0;
-		return;
-	}
+	item.visible = (Math.floor(flickerTime * 18) % 2) == 0;
 
-	item.visible = true;
-	if (leftState)
-		return;
-	leftState = true;
-	selectedSomethin = false;
-	goToChoice();
+	if (flickerTime >= 0.28 && !irisOn)
+		startIris(FlxG.width / 2, FlxG.height / 2, 1, hovered);
 }
 
 function goToChoice() {
@@ -321,10 +375,105 @@ function goToChoice() {
 		return;
 	}
 
-	if (choice == 1)
+	if (choice == 1) {
+		skipTransOut = true;
 		FlxG.switchState(new FreeplayState());
-	else if (choice == 3)
+	} else if (choice == 3) {
+		skipTransOut = true;
 		FlxG.switchState(new OptionsMenu());
+	}
+}
+
+function startIris(x, y, kind, arg) {
+	if (irisOn)
+		return;
+	irisOn = true;
+	irisLeave = false;
+	irisPhase = 0;
+	irisT = 0;
+	irisKind = kind;
+	irisArg = arg;
+	irisX = 0.5;
+	irisY = 0.5;
+	irisMax = 1.15;
+	irisRadius = irisMax;
+	iris.visible = true;
+	iris.alpha = 1;
+	iris.setGraphicSize(FlxG.width + 100, FlxG.height + 100);
+	iris.updateHitbox();
+	iris.setPosition(-50, -50);
+	if (irisShader != null) {
+		irisShader.radius = irisRadius;
+		irisShader.feather = 0.012;
+		irisShader.aspect = FlxG.width / FlxG.height;
+	}
+	remove(iris);
+	add(iris);
+}
+
+function updateIris(elapsed) {
+	if (irisPhase == 0) {
+		irisT += elapsed;
+		var t = Math.min(1, irisT / 0.42);
+		var e = t * t * t;
+		irisRadius = irisMax * (1 - e);
+		applyIrisRadius();
+		if (t >= 1)
+			doIrisAction();
+		return;
+	}
+
+	irisT += elapsed;
+	var t = Math.min(1, irisT / 0.46);
+	var u = 1 - (1 - t) * (1 - t) * (1 - t);
+	irisRadius = irisMax * u;
+	applyIrisRadius();
+	if (t >= 1) {
+		irisOn = false;
+		iris.visible = false;
+		selectedSomethin = false;
+	}
+}
+
+function applyIrisRadius() {
+	if (irisShader == null)
+		return;
+	var r = irisRadius;
+	if (r < 0)
+		r = 0;
+	irisShader.radius = r;
+	irisShader.feather = 0.012;
+	irisShader.aspect = FlxG.width / FlxG.height;
+}
+
+function doIrisAction() {
+	if (irisKind == 1) {
+		hovered = irisArg;
+		goToChoice();
+		if (irisArg == 1 || irisArg == 3) {
+			irisLeave = true;
+			return;
+		}
+	} else if (irisKind == 2) {
+		closeLevelSelect();
+	} else if (irisKind == 3) {
+		closeOverlay();
+	} else if (irisKind == 4) {
+		skipTransOut = true;
+		FlxG.switchState(new TitleState());
+		irisLeave = true;
+		return;
+	} else if (irisKind == 5) {
+		skipTransOut = true;
+		PlayState.loadSong(worldSongs[irisArg], "hard");
+		PlayState.SONG.stage = "dreamland";
+		FlxG.switchState(new PlayState());
+		irisLeave = true;
+		return;
+	}
+
+	irisPhase = 1;
+	irisT = 0;
 }
 
 function openOverlay(choice) {
@@ -360,7 +509,7 @@ function openOverlay(choice) {
 		overlayTitle.alpha = 0;
 	}
 	if (overlaySub != null) {
-		overlaySub.text = "Proximamente...";
+		overlaySub.text = "Coming soon...";
 		overlaySub.y = overlayIconHomeY + overlayIcon.height + 60;
 		overlaySub.visible = true;
 		overlaySub.alpha = 0;
@@ -404,9 +553,12 @@ function updateOverlay(elapsed) {
 	if (fade < 1)
 		return;
 
+	if (irisOn)
+		return;
+
 	if (controls.BACK || FlxG.mouse.justPressed) {
 		CoolUtil.playMenuSFX(2);
-		closeOverlay();
+		startIris(FlxG.width / 2, FlxG.height / 2, 3, 0);
 	}
 }
 
@@ -473,8 +625,10 @@ function updateLevelSelect(elapsed) {
 		worldShakeT -= elapsed;
 
 	var fade = Math.min(1, overlayTime * 5);
-	lsBg.x = lsBgHomeX + followX * 0.45;
-	lsBg.y = lsBgHomeY + followY * 0.45;
+	var ox = followX * 0.45;
+	var oy = followY * 0.45;
+	lsBg.x = lsBgHomeX + ox;
+	lsBg.y = lsBgHomeY + oy;
 	if (overlayHint != null) overlayHint.alpha = fade;
 
 	var nextHover = worldHovered;
@@ -500,17 +654,24 @@ function updateLevelSelect(elapsed) {
 		} else if (i == worldHovered) {
 			mul = 1.08;
 		}
-		spr.setGraphicSize(Math.floor(worldBaseW[i] * mul), Math.floor(worldBaseH[i] * mul));
+
+		var bw = lsBg.width;
+		var bh = lsBg.height;
+		var sw = slotW[i] * bw / lsImgW * mul;
+		var sh = slotH[i] * bh / lsImgH * mul;
+		spr.setGraphicSize(Math.floor(sw), Math.floor(sh));
 		spr.updateHitbox();
 
 		var shake = 0.0;
 		if (i == worldShakeI && worldShakeT > 0)
 			shake = Math.sin(worldShakeT * 55) * 10 * (worldShakeT / 0.22);
 
-		spr.x = worldHomeX[i] + (worldBaseW[i] - spr.width) / 2 + followX * 0.7 + shake;
-		spr.y = worldHomeY[i] + (worldBaseH[i] - spr.height) / 2 + followY * 0.7;
+		var cx = lsBg.x + slotCX[i] * bw / lsImgW;
+		var cy = lsBg.y + slotCY[i] * bh / lsImgH;
+		spr.x = cx - spr.width / 2.0 + shake;
+		spr.y = cy - spr.height / 2.0;
 
-		if (p > 0.35 && FlxG.mouse.overlaps(spr))
+		if (!selectedSomethin && !irisOn && p > 0.35 && FlxG.mouse.overlaps(spr))
 			nextHover = i;
 		i++;
 	}
@@ -520,7 +681,18 @@ function updateLevelSelect(elapsed) {
 		CoolUtil.playMenuSFX(0, 0.7);
 	}
 
+	if (selectedSomethin) {
+		flickerTime += elapsed;
+		var blinkItem = worldSprites[worldHovered];
+		blinkItem.visible = (Math.floor(flickerTime * 18) % 2) == 0;
+		if (flickerTime >= 0.28 && !irisOn)
+			startIris(FlxG.width / 2, FlxG.height / 2, 5, worldHovered);
+	}
+
 	if (fade < 1)
+		return;
+
+	if (irisOn || selectedSomethin)
 		return;
 
 	if (FlxG.keys.justPressed.LEFT && worldHovered > 0) {
@@ -546,7 +718,7 @@ function updateLevelSelect(elapsed) {
 			}
 			if (clickedWorld < 0) {
 				CoolUtil.playMenuSFX(2);
-				closeLevelSelect();
+				startIris(FlxG.width / 2, FlxG.height / 2, 2, 0);
 				return;
 			}
 			worldHovered = clickedWorld;
@@ -560,13 +732,15 @@ function updateLevelSelect(elapsed) {
 		}
 
 		CoolUtil.playMenuSFX(1);
-		PlayState.loadSong(worldSongs[worldHovered], "hard");
-		FlxG.switchState(new PlayState());
+		selectedSomethin = true;
+		leftState = false;
+		flickerTime = 0;
+		hovered = worldHovered;
 		return;
 	}
 
 	if (controls.BACK) {
 		CoolUtil.playMenuSFX(2);
-		closeLevelSelect();
+		startIris(FlxG.width / 2, FlxG.height / 2, 2, 0);
 	}
 }

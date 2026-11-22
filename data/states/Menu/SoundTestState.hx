@@ -1,6 +1,6 @@
-var gallery;
-var galleryHomeX = 0.0;
-var galleryHomeY = 0.0;
+var icon;
+var iconHomeX = 0.0;
+var iconHomeY = 0.0;
 var bg;
 var bgHomeX = 0.0;
 var bgHomeY = 0.0;
@@ -10,7 +10,6 @@ var canLeave = true;
 var menuTime = 0.0;
 
 function create() {
-	skipTransIn = true;
 	CoolUtil.playMenuSong();
 	FlxG.mouse.visible = true;
 	FlxG.camera.scroll.set(0, 0);
@@ -38,19 +37,19 @@ function create() {
 	dim.scrollFactor.set();
 	add(dim);
 
-	gallery = new FlxSprite();
-	gallery.loadGraphic(Paths.image("menus/mainmenu/gallery"));
-	gallery.antialiasing = true;
-	gallery.scrollFactor.set();
-	gallery.scale.set(menuScale * 1.15, menuScale * 1.15);
-	gallery.updateHitbox();
-	gallery.screenCenter();
-	gallery.y -= 30;
-	galleryHomeX = gallery.x;
-	galleryHomeY = gallery.y;
-	add(gallery);
+	icon = new FlxSprite();
+	icon.loadGraphic(Paths.image("menus/mainmenu/soundtest"));
+	icon.antialiasing = true;
+	icon.scrollFactor.set();
+	icon.scale.set(menuScale * 1.15, menuScale * 1.15);
+	icon.updateHitbox();
+	icon.screenCenter();
+	icon.y -= 30;
+	iconHomeX = icon.x;
+	iconHomeY = icon.y;
+	add(icon);
 
-	var title = new FunkinText(0, gallery.y + gallery.height + 8, FlxG.width, "GALLERY", 42);
+	var title = new FunkinText(0, icon.y + icon.height + 8, FlxG.width, "SOUND TEST", 42);
 	title.alignment = "center";
 	title.scrollFactor.set();
 	add(title);
@@ -68,6 +67,7 @@ function create() {
 }
 
 function update(elapsed) {
+	trace('update');
 	menuTime += elapsed;
 
 	var tx = ((FlxG.mouse.screenX / FlxG.width) - 0.5) * 42;
@@ -76,8 +76,8 @@ function update(elapsed) {
 	followY = FlxMath.lerp(followY, ty, Math.min(1, elapsed * 5.5));
 	bg.x = bgHomeX + followX * 0.45;
 	bg.y = bgHomeY + followY * 0.45;
-	gallery.x = galleryHomeX + followX;
-	gallery.y = galleryHomeY + followY + Math.sin(menuTime * 2) * 6;
+	icon.x = iconHomeX + followX;
+	icon.y = iconHomeY + followY + Math.sin(menuTime * 2) * 6;
 
 	if (!canLeave)
 		return;

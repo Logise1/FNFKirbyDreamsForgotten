@@ -1,22 +1,24 @@
-static var redirectStates:Map<FlxState, String> = [
-	MainMenuState => "CustomMainMenu"
-];
+var lastMouseX:Float = 0;
+var lastMouseY:Float = 0;
+var movementThreshold:Float = 10;
 
-function preStateSwitch() {
-	try {
-		for (redirectState in redirectStates.keys()) {
-			if (FlxG.game._requestedState is redirectState)
-				FlxG.game._requestedState = new ModState(redirectStates.get(redirectState));
-		}
-	} catch (e:Dynamic) {}
-}
-
-function preStateCreate(state) {
-	try {
-		if (PlayState.SONG != null) {
-			var n = PlayState.SONG.meta != null ? PlayState.SONG.meta.name : null;
-			if (n != null && n.toLowerCase().indexOf("tutorial") != -1)
-				PlayState.SONG.stage = "dreamland";
-		}
-	} catch (e:Dynamic) {}
+function update(elapsed:Float):Void {
+	if (FlxG.keys.justPressed.ANY) {
+		FlxG.mouse.visible = false;
+	}
+	
+	if (!FlxG.mouse.visible)
+	{
+	    var mouseX = FlxG.mouse.screenX;
+	    var mouseY = FlxG.mouse.screenY;
+	    var mouseDeltaX = Math.abs(mouseX - lastMouseX);
+	    var mouseDeltaY = Math.abs(mouseY - lastMouseY);
+	
+	if ((mouseDeltaX > movementThreshold || mouseDeltaY > movementThreshold)) {
+		FlxG.mouse.visible = true;
+	}
+	
+	    lastMouseX = mouseX;
+	    lastMouseY = mouseY;
+	}
 }

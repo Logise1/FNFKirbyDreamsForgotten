@@ -1,3 +1,5 @@
+//try not to vibecode things pls
+
 var hovered = -1;
 var selectedSomethin = false;
 var flickerTime = 0.0;
@@ -58,18 +60,7 @@ var slotCY = [194.8, 198.3, 195.8, 368.6, 364.6];
 var slotW = [119.9, 119.9, 121.9, 115.9, 117.9];
 var slotH = [113.9, 112.9, 113.9, 111.9, 115.9];
 
-var iris;
-var irisOn = false;
-var irisT = 0.0;
-var irisPhase = 0;
-var irisMax = 8.0;
-var irisX = 0.0;
-var irisY = 0.0;
-var irisKind = 0;
-var irisArg = 0;
-var irisLeave = false;
-var irisShader;
-var irisRadius = 0.0;
+var irisTransition = importScript("data/scripts/IrisTransition");
 
 function create() {
 	skipTransIn = true;
@@ -195,22 +186,7 @@ function createWorlds() {
 
 	layoutWorlds(0.0, 0.0);
 
-	iris = new FlxSprite(-50, -50);
-	iris.makeGraphic(20, 20, 0xFF000000, true);
-	iris.scrollFactor.set();
-	iris.setGraphicSize(FlxG.width + 100, FlxG.height + 100);
-	iris.updateHitbox();
-	iris.visible = false;
-	try {
-		irisShader = new CustomShader("irisHole");
-		irisShader.radius = 1.4;
-		irisShader.feather = 0.012;
-		irisShader.aspect = FlxG.width / FlxG.height;
-		iris.shader = irisShader;
-	} catch (e:Dynamic) {
-		irisShader = null;
-	}
-	add(iris);
+	irisTransition.call("irisTransitionInit");
 }
 
 function layoutWorlds(ox, oy) {
@@ -243,8 +219,13 @@ function update(elapsed) {
 
 	updateCameraFollow(elapsed);
 
-	if (irisOn)
-		updateIris(elapsed);
+	var irisUpdate = irisTransition.call("irisTransitionUpdate", [elapsed]);
+	if (irisUpdate != null) {
+		if (irisUpdate.type == "covered")
+			irisTransition.call("continueTransition", [doIrisAction(irisUpdate.kind, irisUpdate.arg)]);
+		else if (irisUpdate.type == "finished")
+			selectedSomethin = false;
+	}
 
 	if (levelSelectOn) {
 		updateLevelSelect(elapsed);
@@ -261,7 +242,7 @@ function update(elapsed) {
 	if (selectedSomethin)
 		updateFlicker(elapsed);
 
-	if (irisOn || selectedSomethin)
+	if (irisTransition.call("isActive") || selectedSomethin)
 		return;
 
 	if (FlxG.mouse.justPressed && hovered >= 0)
@@ -269,7 +250,7 @@ function update(elapsed) {
 
 	if (controls.BACK) {
 		CoolUtil.playMenuSFX(2);
-		startIris(FlxG.width / 2, FlxG.height / 2, 4, 0);
+		startIris(4, 0);
 	}
 
 	if (controls.SWITCHMOD) {
@@ -281,7 +262,7 @@ function update(elapsed) {
 
 function updateMenuMotion(elapsed) {
 	introTime += elapsed;
-	if (!selectedSomethin && !irisOn)
+	if (!selectedSomethin && !irisTransition.call("isActive"))
 		updateHover();
 
 	var i = 0;
@@ -347,7 +328,7 @@ function updateHover() {
 }
 
 function clickItem() {
-	if (selectedSomethin || overlayOn || levelSelectOn || irisOn || hovered < 0)
+	if (selectedSomethin || overlayOn || levelSelectOn || irisTransition.call("isActive") || hovered < 0)
 		return;
 	selectedSomethin = true;
 	leftState = false;
@@ -360,8 +341,8 @@ function updateFlicker(elapsed) {
 	var item = menuItems[hovered];
 	item.visible = (Math.floor(flickerTime * 18) % 2) == 0;
 
-	if (flickerTime >= 0.28 && !irisOn)
-		startIris(FlxG.width / 2, FlxG.height / 2, 1, hovered);
+	if (flickerTime >= 0.28 && !irisTransition.call("isActive"))
+		startIris(1, hovered);
 }
 
 function goToChoice() {
@@ -384,96 +365,32 @@ function goToChoice() {
 	}
 }
 
-function startIris(x, y, kind, arg) {
-	if (irisOn)
-		return;
-	irisOn = true;
-	irisLeave = false;
-	irisPhase = 0;
-	irisT = 0;
-	irisKind = kind;
-	irisArg = arg;
-	irisX = 0.5;
-	irisY = 0.5;
-	irisMax = 1.15;
-	irisRadius = irisMax;
-	iris.visible = true;
-	iris.alpha = 1;
-	iris.setGraphicSize(FlxG.width + 100, FlxG.height + 100);
-	iris.updateHitbox();
-	iris.setPosition(-50, -50);
-	if (irisShader != null) {
-		irisShader.radius = irisRadius;
-		irisShader.feather = 0.012;
-		irisShader.aspect = FlxG.width / FlxG.height;
-	}
-	remove(iris);
-	add(iris);
+function startIris(kind, arg) {
+	irisTransition.call("start", [kind, arg]);
 }
 
-function updateIris(elapsed) {
-	if (irisPhase == 0) {
-		irisT += elapsed;
-		var t = Math.min(1, irisT / 0.42);
-		var e = t * t * t;
-		irisRadius = irisMax * (1 - e);
-		applyIrisRadius();
-		if (t >= 1)
-			doIrisAction();
-		return;
-	}
-
-	irisT += elapsed;
-	var t = Math.min(1, irisT / 0.46);
-	var u = 1 - (1 - t) * (1 - t) * (1 - t);
-	irisRadius = irisMax * u;
-	applyIrisRadius();
-	if (t >= 1) {
-		irisOn = false;
-		iris.visible = false;
-		selectedSomethin = false;
-	}
-}
-
-function applyIrisRadius() {
-	if (irisShader == null)
-		return;
-	var r = irisRadius;
-	if (r < 0)
-		r = 0;
-	irisShader.radius = r;
-	irisShader.feather = 0.012;
-	irisShader.aspect = FlxG.width / FlxG.height;
-}
-
-function doIrisAction() {
-	if (irisKind == 1) {
-		hovered = irisArg;
+function doIrisAction(kind, arg) {
+	if (kind == 1) {
+		hovered = arg;
 		goToChoice();
-		if (irisArg == 1 || irisArg == 3) {
-			irisLeave = true;
-			return;
-		}
-	} else if (irisKind == 2) {
+		return arg == 1 || arg == 3;
+	} else if (kind == 2) {
 		closeLevelSelect();
-	} else if (irisKind == 3) {
+	} else if (kind == 3) {
 		closeOverlay();
-	} else if (irisKind == 4) {
+	} else if (kind == 4) {
 		skipTransOut = true;
 		FlxG.switchState(new TitleState());
-		irisLeave = true;
-		return;
-	} else if (irisKind == 5) {
+		return true;
+	} else if (kind == 5) {
 		skipTransOut = true;
-		PlayState.loadSong(worldSongs[irisArg], "hard");
+		PlayState.loadSong(worldSongs[arg], "hard");
 		PlayState.SONG.stage = "dreamland";
 		FlxG.switchState(new PlayState());
-		irisLeave = true;
-		return;
+		return true;
 	}
 
-	irisPhase = 1;
-	irisT = 0;
+	return false;
 }
 
 function openOverlay(choice) {
@@ -553,12 +470,12 @@ function updateOverlay(elapsed) {
 	if (fade < 1)
 		return;
 
-	if (irisOn)
+	if (irisTransition.call("isActive"))
 		return;
 
 	if (controls.BACK || FlxG.mouse.justPressed) {
 		CoolUtil.playMenuSFX(2);
-		startIris(FlxG.width / 2, FlxG.height / 2, 3, 0);
+		startIris(3, 0);
 	}
 }
 
@@ -671,7 +588,7 @@ function updateLevelSelect(elapsed) {
 		spr.x = cx - spr.width / 2.0 + shake;
 		spr.y = cy - spr.height / 2.0;
 
-		if (!selectedSomethin && !irisOn && p > 0.35 && FlxG.mouse.overlaps(spr))
+		if (!selectedSomethin && !irisTransition.call("isActive") && p > 0.35 && FlxG.mouse.overlaps(spr))
 			nextHover = i;
 		i++;
 	}
@@ -685,14 +602,14 @@ function updateLevelSelect(elapsed) {
 		flickerTime += elapsed;
 		var blinkItem = worldSprites[worldHovered];
 		blinkItem.visible = (Math.floor(flickerTime * 18) % 2) == 0;
-		if (flickerTime >= 0.28 && !irisOn)
-			startIris(FlxG.width / 2, FlxG.height / 2, 5, worldHovered);
+		if (flickerTime >= 0.28 && !irisTransition.call("isActive"))
+			startIris(5, worldHovered);
 	}
 
 	if (fade < 1)
 		return;
 
-	if (irisOn || selectedSomethin)
+	if (irisTransition.call("isActive") || selectedSomethin)
 		return;
 
 	if (FlxG.keys.justPressed.LEFT && worldHovered > 0) {
@@ -718,7 +635,7 @@ function updateLevelSelect(elapsed) {
 			}
 			if (clickedWorld < 0) {
 				CoolUtil.playMenuSFX(2);
-				startIris(FlxG.width / 2, FlxG.height / 2, 2, 0);
+				startIris(2, 0);
 				return;
 			}
 			worldHovered = clickedWorld;
@@ -741,6 +658,6 @@ function updateLevelSelect(elapsed) {
 
 	if (controls.BACK) {
 		CoolUtil.playMenuSFX(2);
-		startIris(FlxG.width / 2, FlxG.height / 2, 2, 0);
+		startIris(2, 0);
 	}
 }

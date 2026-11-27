@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="girlfried.png">
+  <SubTexture name="idle_01" x="1" y="1" width="2480" height="2409"/>
+  <SubTexture name="idle_02" x="2482" y="1" width="2480" height="2409"/>
+  <SubTexture name="idle_03" x="4963" y="1" width="2480" height="2409"/>
+  <SubTexture name="idle_04" x="7444" y="1" width="2480" height="2409"/>
+  <SubTexture name="idle_05" x="1" y="2411" width="2480" height="2409"/>
+  <SubTexture name="idle_06" x="2482" y="2411" width="2480" height="2409"/>
+  <SubTexture name="idle_07" x="4963" y="2411" width="2480" height="2409"/>
+  <SubTexture name="idle_08" x="7444" y="2411" width="2480" height="2409"/>
+  <SubTexture name="idle_09" x="1" y="4821" width="2480" height="2409"/>
+  <SubTexture name="idle_10" x="2482" y="4821" width="2480" height="2409"/>
+</TextureAtlas>

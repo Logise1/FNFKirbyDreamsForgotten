@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="spritesheet.png">
+  <SubTexture name="idle_01" x="1" y="1" width="2480" height="2409"/>
+  <SubTexture name="idle_02" x="2482" y="1" width="2480" height="2409"/>
+  <SubTexture name="idle_03" x="4963" y="1" width="2480" height="2409"/>
+  <SubTexture name="idle_04" x="7444" y="1" width="2480" height="2409"/>
+  <SubTexture name="right_01" x="9925" y="1" width="2480" height="2409"/>
+  <SubTexture name="right_02" x="1" y="2411" width="2480" height="2409"/>
+  <SubTexture name="right_03" x="2482" y="2411" width="2480" height="2409"/>
+  <SubTexture name="right_04" x="4963" y="2411" width="2480" height="2409"/>
+  <SubTexture name="up_01" x="7444" y="2411" width="2480" height="2409"/>
+  <SubTexture name="up_02" x="9925" y="2411" width="2480" height="2409"/>
+  <SubTexture name="up_03" x="1" y="4821" width="2480" height="2409"/>
+  <SubTexture name="up_04" x="2482" y="4821" width="2480" height="2409"/>
+  <SubTexture name="left_01" x="4963" y="4821" width="2480" height="2409"/>
+  <SubTexture name="left_02" x="7444" y="4821" width="2480" height="2409"/>
+  <SubTexture name="left_03" x="9925" y="4821" width="2480" height="2409"/>
+  <SubTexture name="left_04" x="1" y="7231" width="2480" height="2409"/>
+  <SubTexture name="down_01" x="2482" y="7231" width="2480" height="2409"/>
+  <SubTexture name="down_02" x="4963" y="7231" width="2480" height="2409"/>
+  <SubTexture name="down_03" x="7444" y="7231" width="2480" height="2409"/>
+  <SubTexture name="down_04" x="9925" y="7231" width="2480" height="2409"/>
+</TextureAtlas>

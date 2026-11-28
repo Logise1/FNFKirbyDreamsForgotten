@@ -1,15 +1,17 @@
 <!DOCTYPE codename-engine-stage>
-<stage zoom="0.58" name="dreamland" folder="stages/dreamland/" startCamPosX="680" startCamPosY="160">
-	<solid name="skyFill" color="#B7F3FC" x="-2500" y="-2000" width="7000" height="5000" scroll="1"/>
-	<sprite name="sky" x="-450" y="-520" sprite="sky" scale="0.95" updateHitbox="true" scroll="1"/>
-	<sprite name="mountains" x="-450" y="-520" sprite="mountains" scale="0.95" updateHitbox="true" scroll="1"/>
-	<sprite name="water" x="-450" y="-520" sprite="water" scale="0.95" updateHitbox="true" scroll="1"/>
-	<sprite name="hills" x="-450" y="-520" sprite="hills" scale="0.95" updateHitbox="true" scroll="1"/>
-	<sprite name="tree" x="-450" y="-520" sprite="tree" scale="0.95" updateHitbox="true" scroll="1"/>
-	<sprite name="treeBack" x="-450" y="-520" sprite="treeback" scale="0.95" updateHitbox="true" scroll="1"/>
-	<sprite name="waterSwirl" x="-450" y="-520" sprite="waterswirl" scale="0.95" updateHitbox="true" scroll="1"/>
-	<sprite name="stump" x="-450" y="-520" sprite="stump" scale="0.95" updateHitbox="true" scroll="1"/>
-	<girlfriend x="677" y="-337"/>
+<stage name="dreamland" folder="stages/dreamland/" zoom="0.58" startCamPosX="680" startCamPosY="160">
+	<solid name="skyFill" x="-2500" y="-2000" scalex="7000" scaley="5000" scroll="0" skewx="0" skewy="0" color="#B7F3FC" width="7000" height="5000"/>
+	<sprite name="sky" sprite="sky" x="-450" y="-520" scale="0.95" updateHitbox="true" scroll="0.7"/>
+	<sprite name="mountains" sprite="mountains" x="-450" y="-520" scale="0.95" updateHitbox="true" scroll="0.8"/>
+	<sprite name="water" sprite="water" x="-450" y="-520" scale="0.95" updateHitbox="true" scroll="0.85"/>
+	<sprite name="this shouldn&#039;t be visible" sprite="hills" x="3195" y="-565" scalex="-1.95" scaley="0.95" scroll="0.99"/>
+	<sprite name="hills" sprite="hills" x="-450" y="-520" scale="0.95" updateHitbox="true" scroll="0.99"/>
+	<sprite name="tree" sprite="tree" x="-450" y="-520" scale="0.95" updateHitbox="true" scrollx="0.93" scrolly="1"/>
+	<sprite name="treeBack" sprite="treeback" x="-450" y="-520" scale="0.95" updateHitbox="true" scrollx="0.97" scrolly="1"/>
+	<sprite name="stump" sprite="stump" x="-450" y="-520" scale="0.95" updateHitbox="true" scroll="0.99"/>
+	<girlfriend x="706" y="-331" scroll="0.99"/>
 	<dad x="98" y="11"/>
 	<boyfriend x="1308" y="-8"/>
+	<sprite name="treeFront" sprite="waterswirl" x="-450" y="-520" scale="0.95" updateHitbox="true" scroll="0.75"/>
+	<sprite name="overlay2" sprite="overlay" x="1960" y="-612" scalex="-1" scaley="1" scroll="0.95" skewx="0" skewy="0"/>
 </stage>

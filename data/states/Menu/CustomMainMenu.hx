@@ -10,6 +10,8 @@ var follow:Array<Float> = [0, 0];
 var menuItems:Array<{sprite:FlxSprite, xIndex:Int, yIndex:Int}> = [];
 var optionStart:Array<Array<Float>> = [];
 
+var aptime:Int;
+
 function create(){
 
     var canvasW = 1024;
@@ -86,29 +88,41 @@ function update(elapsed:Float) {
 		}
 	}
 
+	if (FlxG.keys.justPressed.SEVEN){
+		openSubState(new funkin.editors.EditorPicker());
+		persistentUpdate = false;
+		persistentDraw = true;
+	}
+
+	if (controls.SWITCHMOD){
+		openSubState(new funkin.menus.ModSwitchMenu());
+		persistentUpdate = false;
+		persistentDraw = true;
+	}
+
 	if ((FlxG.keys.justPressed.ENTER && !FlxG.mouse.visible) || (FlxG.mouse.justPressed && FlxG.mouse.visible)) {
 		if (curselect[0] == 0 && curselect[1] == 0){
-			//story
-			FlxG.switchState(new StoryMenu());
+			//options
+			FlxG.switchState(new funkin.options.OptionsMenu());
 		}
 		else if (curselect[0] == 2 && curselect[1] == 1){
 			//freeplay
-			FlxG.switchState(new FreeplayMenu());
+			FlxG.switchState(new funkin.menus.FreeplayState());
 		}
 		else if (curselect[0] == 2 && curselect[1] == 0){
 			//gallery
 			FlxG.switchState(new ModState("Menu/GalleryState"));
 		}
 		else if (curselect[0] == 0 && curselect[1] == 1){
-			//options
-			FlxG.switchState(new OptionsMenu());
+			//story
+			FlxG.switchState(new ModState("Menu/StoryMenuState"));
 		}
 		else if (curselect[0] == 1 && curselect[1] == 0){
 			//soundtest
 			FlxG.switchState(new ModState("Menu/SoundTestState"));
 		}
 	}
-	trace(curselect);
+	//trace(curselect);
 }
 
 

@@ -1,0 +1,8 @@
+<!DOCTYPE codename-engine-character>
+<character x="-1062" y="-695" scale="0.3" flipX="true" camy="157" camx="-300" isPlayer="true" icon="boyfried" color="#000000" defFps="11">
+	<anim name="idle" anim="idle" x="-4" y="-6"/>
+	<anim name="singDOWN" anim="down"/>
+	<anim name="singRIGHT" anim="right"/>
+	<anim name="singLEFT" anim="left"/>
+	<anim name="singUP" anim="up"/>
+</character>

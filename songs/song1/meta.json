@@ -1,0 +1,16 @@
+{
+	"customValues": {},
+	"color": "#FF6B9D",
+	"opponentModeAllowed": true,
+	"icon": "dad",
+	"difficulties": [
+		"hard"
+	],
+	"coopAllowed": true,
+	"stepsPerBeat": 4,
+	"displayName": "Kirby Shuffle",
+	"stage": "dreamland",
+	"needsVoices": false,
+	"beatsPerMeasure": 4,
+	"bpm": 175
+}

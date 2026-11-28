@@ -1,0 +1,4 @@
+<!DOCTYPE codename-engine-character>
+<character x="-987" y="-716" scale="0.2" icon="girlfried" color="#000000" defFps="11">
+	<anim name="idle" anim="idl" loop="true"/>
+</character>
